@@ -4,9 +4,9 @@ LABEL org.opencontainers.image.description="Base Ubuntu image for rootless podma
 
 USER root
 
-# Install dependencies
+# Install dependencies, including libcap2-bin for setcap
 RUN apt-get update && \
-    apt-get install -y sudo gnupg2 curl vim fuse-overlayfs libvshadow-utils openssh-client && \
+    apt-get install -y sudo gnupg2 curl vim fuse-overlayfs libvshadow-utils openssh-client libcap2-bin && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -40,9 +40,6 @@ RUN chmod 644 /etc/containers/containers.conf && \
     chmod 644 /etc/containers/storage.conf && \
     mkdir -p /home/podman/.local/share/containers && \
     chown podman:podman -R /home/podman && \
-    # The following chmod was already applied, but if it's intended for /home/podman path, it needs adjustment.
-    # Assuming it was for /etc/containers/containers.conf and is now correctly covered above.
-    # If /home/podman/.local/share/containers or its contents need specific permissions, add them here.
     mkdir -p /var/lib/shared/overlay-images \
              /var/lib/shared/overlay-layers \
              /var/lib/shared/vfs-images \
@@ -58,7 +55,6 @@ ENV _CONTAINERS_USERNS_CONFIGURED=""
 RUN ln -s /usr/bin/podman /usr/bin/docker
 
 RUN chsh -s /bin/bash podman
-
 
 USER podman
 
